@@ -1,0 +1,5 @@
+.cabal
+.ghc
+*.hi
+*.o
+enigma
