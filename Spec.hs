@@ -1,5 +1,6 @@
 import Test.Hspec
 import Test.QuickCheck
+import Control.Monad
 
 import Machine
 
@@ -9,15 +10,18 @@ genReflector = elements [reflectorA, reflectorB, reflectorB]
 genRotor :: Gen Rotor
 genRotor = elements [rotorI, rotorII, rotorIII]
 
+genRotors :: Gen Rotors
+genRotors = liftM3 (,,) genRotor genRotor genRotor
+
+plugboard :: [Char] -> [(Char, Char)]
+plugboard zs = zip xs ys
+    where (xs, ys) = splitAt ((length zs + 1) `div` 2) zs
+
+genPlugboard :: Gen Plugboard
+genPlugboard = fmap plugboard $ shuffle alphabet
+
 genMessage :: Gen String
 genMessage = listOf $ elements alphabet
-
-genRotors :: Gen Rotors
-genRotors = do
-    a <- genRotor
-    b <- genRotor
-    c <- genRotor
-    return (a, b, c)
 
 main :: IO ()
 main = hspec $ do
@@ -31,12 +35,14 @@ main = hspec $ do
         it "encoded cipher matches message" $ do
             property $ forAll genReflector $ \reflector ->
                        forAll genRotors $ \rotors ->
+                       forAll genPlugboard $ \plugboard ->
                        forAll genMessage $ \message ->
-                          let cipher = encodeMessage rotors reflector [] message in
-                              message == encodeMessage rotors reflector [] cipher
+                          let cipher = encodeMessage rotors reflector plugboard message in
+                              message == encodeMessage rotors reflector plugboard cipher
         it "cipher is same length as message" $ do
             property $ forAll genReflector $ \reflector ->
                        forAll genRotors $ \rotors ->
+                       forAll genPlugboard $ \plugboard ->
                        forAll genMessage $ \message ->
-                          let cipher = encodeMessage rotors reflector [] message in
+                          let cipher = encodeMessage rotors reflector plugboard message in
                               length message == length cipher
