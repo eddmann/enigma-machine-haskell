@@ -1,7 +1,7 @@
 import System.Environment
 import Data.Char
 
-import Machine (Rotors, Plugboard, Reflector, toReflector, toRotor, encodeMessage)
+import Machine (Rotors, Plugboard, Reflector, toReflector, toRotor, toPlugboard, encodeMessage)
 
 parseRotors :: [String] -> IO Rotors
 parseRotors ("-rotors" : [a, b, c] : _) = case (toRotor a, toRotor b, toRotor c) of
@@ -9,10 +9,6 @@ parseRotors ("-rotors" : [a, b, c] : _) = case (toRotor a, toRotor b, toRotor c)
     _ -> fail $ "invalid rotors " ++ [a, b, c] ++ " specified in args"
 parseRotors (_ : xs) = parseRotors xs
 parseRotors [] = fail "rotors must be specified in args"
-
-toPlugboard :: String -> Plugboard
-toPlugboard (x : y : xs) = [(toUpper x, toUpper y)] ++ toPlugboard xs
-toPlugboard _ = []
 
 parsePlugboard :: [String] -> IO Plugboard
 parsePlugboard ("-plugboard" : plugboard : _) = pure $ toPlugboard plugboard

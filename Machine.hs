@@ -1,6 +1,7 @@
 module Machine where
 
 import Data.Tuple (swap)
+import Data.Char
 
 alphabet :: [Char]
 alphabet = ['A'..'Z']
@@ -67,6 +68,10 @@ type Plugboard = [(Char, Char)]
 plug :: Plugboard -> Char -> Char
 plug plugboard letter = maybe letter id $ lookup letter plugboard'
     where plugboard' = (plugboard ++ map swap plugboard)
+
+toPlugboard :: String -> Plugboard
+toPlugboard (x : y : xs) = [(toUpper x, toUpper y)] ++ toPlugboard xs
+toPlugboard _ = []
 
 encode :: Rotors -> Reflector -> Plugboard -> Char -> Char
 encode rotors reflector plugboard letter =
